@@ -1,7 +1,6 @@
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.ST;
 import edu.princeton.cs.algs4.SymbolDigraph;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +11,7 @@ public class SynonymGraph {
     private Digraph graph;
     private ST<String, String> wordDefinitions;
 
-    public SynonymGraph() throws IOException {
+    public SynonymGraph(){
         symbolDigraph = new SymbolDigraph("Resources/Thesaurus.txt", ",");
         graph = symbolDigraph.G();
         wordDefinitions = new ST<>();
@@ -36,6 +35,7 @@ public class SynonymGraph {
         graph = symbolDigraph.G();
     }
 
+    //work on find path and getconnections
     public List<String> findPath(String start, String end) {
         return null;//TODO
     }
@@ -48,12 +48,13 @@ public class SynonymGraph {
         return null;//TODO
     }
 
-    public String getDefinition(String word) {
-        return null; //TODO
-    }
+//    public String getDefinition(String word) {
+//        return null; //TODO
+//    }
+//
+//    private void loadWordDefinitions() {
+//    }
 
-    private void loadWordDefinitions() {
-    }
 
     public static void main(String[] args) {
         try {

@@ -22,6 +22,3 @@ merry,gleeful
 gleeful,merry
 satisfied,gratified
 gratified,satisfied
-
-ecstatic,
-happryiess,
