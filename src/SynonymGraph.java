@@ -2,12 +2,12 @@ import edu.princeton.cs.algs4.*;
 import java.util.*;
 
 public class SynonymGraph {
-    private SymbolGraph sg;
+    private SymbolGraphMemoryEfficient sg;
     private Graph graph;
     private ST<String, String> wordDefinitions;
 
     public SynonymGraph() {
-        this.sg = new SymbolGraph("Resources/mthesaur.txt", ",");
+        this.sg = new SymbolGraphMemoryEfficient("Resources/synonyms.txt", ",");
         this.graph = sg.graph();
         wordDefinitions = new ST<>();
     }
@@ -101,7 +101,7 @@ public class SynonymGraph {
         if (path == null) return null;
 
         Map<String, Set<String>> allSynonyms = new HashMap<>();
-        int maxSynonymsPerWord = 5; // Limit the number of synonyms per word
+        int maxSynonymsPerWord = 3; // Limit the number of synonyms per word
 
         // For each word in the path, get limited adjacent vertices
         for (String word : path) {
