@@ -47,7 +47,7 @@ public class SynonymGraph {
     private ST<String, String> wordDefinitions;
 
     public SynonymGraph() {
-        this.sg = new SymbolGraphMemoryEfficient("Resources/mthesaur.txt", ",");
+        this.sg = new SymbolGraphMemoryEfficient("Resources/synonyms.txt", ",");
         this.graph = sg.graph();
         wordDefinitions = new ST<>();
     }
@@ -89,59 +89,93 @@ public class SynonymGraph {
     }
 
     /**
-     * Calculates the minimum number of synonym connections between two words.
-     * Returns 0 if words are identical, -1 if no connection exists.
+     * TODO: Improve path generation to guarantee target depth
      *
-     * @param start The starting word to measure distance from
-     * @param end   The target word to measure distance to
-     * @return Integer representing number of synonym steps between words
+     * Current implementation:
+     * - Uses MAX_ATTEMPTS (100) to repeatedly try generating valid paths
+     * - Returns null if no path of exact target depth is found
+     *
+     * Limitation: Current approach relies on random generation which may miss valid paths
+     *
+     * Proposed improvement:
+     * - Use graph traversal to first identify all words that exist at the target depth
+     * - Then generate paths specifically to those pre-identified target words
+     *
+     * Challenge to solve: How to efficiently identify all words at a specific depth
+     * from the start word without having a target end word?
+     *
+     * Possible approach:
+     * - Use BFS/DFS to map all words at each depth level from start word
+     * - Select target word from the mapped depth level
+     * - Generate path to chosen target word
      */
-    public int getConnectionsLevel(String start, String end) {
-        //returns 0 if both words are equal
-        if (start.equals(end)) {
-            return 0;
+
+    /**
+     * Generates a list of connected words randomly from the start word. The count
+     * of connections will be the same number as the target depth.
+     *
+     * @param startWord
+     * @param targetDepth
+     * @return list of random connected words from starting word to the last word at
+     *         the indicated depth level
+     */
+    public List<String> generateWordAtDepth(String startWord, int targetDepth) {
+        if (!sg.contains(startWord))
+            return null;
+
+        // NEW: Maximum attempts counter
+        final int MAX_ATTEMPTS = 100;
+
+        // NEW: Outer retry loop
+        for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            List<String> randomWordPath = new ArrayList<String>();
+            randomWordPath.add(startWord);
+
+            // NEW: Path validity tracker
+            boolean pathFound = true;
+
+            for (int i = 0; i < targetDepth; i++) {
+                String previousWord = randomWordPath.get(randomWordPath.size() - 1);
+                List<String> adjList = new ArrayList<>();
+                for (int v : graph.adj(sg.indexOf(previousWord))) {
+                    String adjacentWord = sg.nameOf(v);
+                    if (!randomWordPath.contains(adjacentWord)) {
+                        adjList.add(adjacentWord);
+                    }
+                }
+
+                // MODIFIED: Empty list handling
+                if (adjList.isEmpty()) {
+                    pathFound = false;  // NEW
+                    break;
+                }
+
+                int randomIndex = StdRandom.uniformInt(0, adjList.size());
+                randomWordPath.add(adjList.get(randomIndex));
+            }
+
+            // NEW: Check for valid path before returning
+            if (pathFound && randomWordPath.size() == targetDepth + 1) {
+                return randomWordPath;
+            }
         }
 
-        //returns -1 if the graph does not contain start or ending word
-        if (!sg.contains(start) || !sg.contains(end)) {
-            return -1;
-        }
-
-        int startVertex = sg.indexOf(start);
-        int endVertex = sg.indexOf(end);
-
-        BreadthFirstPaths bfs = new BreadthFirstPaths(graph, startVertex);
-
-        //returns -1 if no path was found to ending word
-        if (!bfs.hasPathTo(endVertex)) {
-            return -1;
-        }
-
-        // Count edges (connections), not vertices
-        int connections = -1;
-        for (int vertex : bfs.pathTo(endVertex)) {
-            connections++;
-        }
-
-        return connections;
-    }
-
-    public String generateWordAtDepth(String startWord, int targetDepth) {
-        return null;//TODO
+        // NEW: Return null if no valid path found after all attempts
+        return null;
     }
 
     /**
      * Gets a limited number of synonyms for words in the path from start to end
-     * @param start Starting word
-     * @param end Target word
+     *
+     * @param path List of words forming the path
      * @return Map of each word in path to its limited set of synonyms
      */
-    public Map<String, Set<String>> getPathSynonyms(String start, String end) {
-        List<String> path = findPath(start, end);
-        if (path == null) return null;
+    public Map<String, Set<String>> getPathSynonyms(List<String> path) {
+        if (path == null)
+            return null;
 
         Map<String, Set<String>> allSynonyms = new HashMap<>();
-        int maxSynonymsPerWord = 3; // Limit the number of synonyms per word
+        int maxSynonymsPerWord = 4; // Limit the number of synonyms per word
 
         // For each word in the path, get limited adjacent vertices
         for (String word : path) {
@@ -157,7 +191,8 @@ public class SynonymGraph {
                     synonyms.add(synonym);
                     count++;
                 }
-                if (count >= maxSynonymsPerWord) break;
+                if (count >= maxSynonymsPerWord)
+                    break;
             }
 
             allSynonyms.put(word, synonyms);
@@ -168,32 +203,98 @@ public class SynonymGraph {
 
     public static void main(String[] args) {
         SynonymGraph sg = new SynonymGraph();
-        List<String> path;
-        String input1;
-        String input2;
-        Scanner scanner = new Scanner(System.in);
+        In scanner = new In();
 
         while (true) {
-            System.out.print("Enter starting word (or ' ' to exit): ");
+            System.out.println("Choose an option:");
+            System.out.println("1. Find connection between two words");
+            System.out.println("2. Generate a random path of connected words");
+            System.out.println("3. Test modified SymbolGraph class");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
 
-            String start = scanner.nextLine().trim().toLowerCase();
+            int choice = scanner.readInt();
 
-            if (start.isEmpty()) {
-                break;
+            switch (choice) {
+                case 1:
+                    System.out.println();
+                    wordConnection(sg, scanner);
+                    break;
+
+                case 2:
+                    System.out.println();
+                    generateRandomWord(sg, scanner);
+                    break;
+                case 3:
+                    System.out.println();
+                    testModifiedSymbolGraph();
+                    break;
+
+                case 4:
+                    System.out.println("\nExiting the program");
+                    return;
+
+                default:
+                    System.out.println("\nInvalid choice. Please enter 1, 2, or 3.");
+                    break;
             }
-
-            System.out.print("Enter target word: ");
-            String end = scanner.nextLine().trim().toLowerCase();
-            path = sg.findPath(start, end);
-            int level = sg.getConnectionsLevel(start, end);
-            if (path == null) {
-                System.out.println("No path found between these two words");
-            } else {
-                System.out.println("Path: " + String.join(" -> ", path));
-                System.out.println("Connection Level: " + level);
-            }
-            System.out.println();
         }
-        scanner.close();
+    }
+
+    private static void testModifiedSymbolGraph() {
+        SymbolGraph sg = new SymbolGraph("src/Resources/mthesaur.txt", ",");
+        Graph graph = sg.graph();
+        System.out.println("Original Class");
+        System.out.println("Edges: " + graph.E());
+        System.out.println("Vertices: " + graph.V());
+        System.out.println();
+
+        SymbolGraphMemoryEfficient sg2 = new SymbolGraphMemoryEfficient("src/Resources/mthesaur.txt", ",");
+        Graph graph2 = sg2.graph();
+        System.out.println("Modified Class");
+        System.out.println("Edges: " + graph2.E());
+        System.out.println("Vertices: " + graph2.V());
+        System.out.println();
+
+        System.out.println("Edges duplicated: " + (graph.E() - graph2.E()));
+        System.out.println();
+    }
+
+    private static void wordConnection(SynonymGraph sg, In in) {
+        List<String> path;
+
+        System.out.print("Enter starting word: ");
+
+        String start = in.readString().trim().toLowerCase();
+
+        System.out.print("Enter target word: ");
+        String end = in.readString().trim().toLowerCase();
+        path = sg.findPath(start, end);
+        if (path == null) {
+            System.out.println("No path found between these two words");
+        } else {
+            System.out.println("Path: " + String.join(" -> ", path));
+            System.out.println("Connection Level: " + (path.size() - 1));
+        }
+        System.out.println();
+    }
+
+    private static void generateRandomWord(SynonymGraph sg, In in) {
+        List<String> path;
+
+        System.out.print("Enter starting word: ");
+
+        String start = in.readString().trim().toLowerCase();
+
+        System.out.print("Enter the depth level: ");
+        int depthLevel = in.readInt();
+        path = sg.generateWordAtDepth(start, depthLevel);
+        if (path == null) {
+            System.out.println("Word not found");
+        } else {
+            System.out.println("Path: " + String.join(" -> ", path));
+            System.out.println("Connection Level: " + (path.size() - 1));
+        }
+        System.out.println();
     }
 }

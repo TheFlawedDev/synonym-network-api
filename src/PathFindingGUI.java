@@ -93,8 +93,7 @@ public class PathFindingGUI extends JFrame {
         }
 
         currentPath = synonymGraph.findPath(sourceWord, targetWord);
-        pathSynonyms = synonymGraph.getPathSynonyms(sourceWord, targetWord);
-        connectionLevel = synonymGraph.getConnectionsLevel(sourceWord, targetWord);
+        pathSynonyms = synonymGraph.getPathSynonyms(currentPath);
 
         if (currentPath == null) {
             analysisArea.setText("No path found between these words.");
@@ -105,7 +104,7 @@ public class PathFindingGUI extends JFrame {
             StringBuilder analysis = new StringBuilder();
             analysis.append("Synonyms Path:\n");
             analysis.append(String.join(" → ", currentPath)).append("\n\n");
-            analysis.append("Connection Level: ").append(connectionLevel);
+            analysis.append("Connection Level: ").append(currentPath.size()-1);
             analysisArea.setText(analysis.toString());
         }
 

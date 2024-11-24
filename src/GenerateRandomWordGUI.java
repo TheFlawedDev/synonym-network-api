@@ -29,9 +29,9 @@ import javax.swing.SwingUtilities;
 
 /**
  * GUI for random word generating function of Synonym Graph.
- * 
+ *
  * @author Nick Budd and Jorge Velazquez
- * 
+ *
  */
 public class GenerateRandomWordGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -155,7 +155,7 @@ public class GenerateRandomWordGUI extends JFrame {
 
 		// Force-directed layout parameters
 		double k = Math.sqrt((graphPanel.getWidth() * graphPanel.getHeight()) / (2.0 * getAllNodes().size())); // Increased
-																												// spacing
+		// spacing
 		double temperature = graphPanel.getWidth() / 4.0; // Increased initial temperature
 		int iterations = 150; // More iterations for better convergence
 
