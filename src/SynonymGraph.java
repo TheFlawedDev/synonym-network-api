@@ -1,13 +1,53 @@
 import edu.princeton.cs.algs4.*;
 import java.util.*;
 
+/**
+ * SynonymGraph represents a graph-based structure for exploring relationships
+ * between words and their synonyms. It provides functionality to find paths,
+ * calculate connection levels, and retrieve synonyms in the graph.
+ *
+ * <p>The graph is built using data from a file containing synonyms, where each
+ * line represents a pair of related words. SynonymGraph leverages efficient
+ * memory usage and the SymbolGraphMemoryEfficient class for indexing and lookup.
+ *
+ * <p>Features include:
+ * <ul>
+ *   <li>Finding the shortest path between two words using breadth-first search.</li>
+ *   <li>Calculating the minimum number of synonym connections (levels) between two words.</li>
+ *   <li>Fetching limited synonyms for words along a given path.</li>
+ * </ul>
+ *
+ * Dependencies:
+ * <ul>
+ *   <li>edu.princeton.cs.algs4.Graph</li>
+ *   <li>edu.princeton.cs.algs4.BreadthFirstPaths</li>
+ *   <li>edu.princeton.cs.algs4.ST</li>
+ *   <li>SymbolGraphMemoryEfficient - a custom implementation of SymbolGraph Class.</li>
+ * </ul>
+ *
+ * Example Usage:
+ * <pre>
+ * {@code
+ * SynonymGraph sg = new SynonymGraph();
+ * List<String> path = sg.findPath("happy", "joyful");
+ * int level = sg.getConnectionsLevel("happy", "joyful");
+ * Map<String, Set<String>> synonyms = sg.getPathSynonyms("happy", "joyful");
+ * }
+ * </pre>
+ *
+ * <p>Input files must be formatted as plain text with synonyms separated by a delimiter
+ * (e.g., commas). By default, the file is located at "Resources/".
+ *
+ * @author Jorge Velazquez, Nick Budd
+ * @version 1.0
+ */
 public class SynonymGraph {
     private SymbolGraphMemoryEfficient sg;
     private Graph graph;
     private ST<String, String> wordDefinitions;
 
     public SynonymGraph() {
-        this.sg = new SymbolGraphMemoryEfficient("Resources/synonyms.txt", ",");
+        this.sg = new SymbolGraphMemoryEfficient("Resources/mthesaur.txt", ",");
         this.graph = sg.graph();
         wordDefinitions = new ST<>();
     }
