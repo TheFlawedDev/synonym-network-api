@@ -1,4 +1,5 @@
 import edu.princeton.cs.algs4.*;
+import org.graphstream.graph.implementations.SingleGraph;
 import java.util.*;
 
 /**
@@ -39,15 +40,16 @@ import java.util.*;
  * (e.g., commas). By default, the file is located at "Resources/".
  *
  * @author Jorge Velazquez, Nick Budd
- * @version 1.0
+ * @version 1.2
  */
 public class SynonymGraph {
     private SymbolGraphMemoryEfficient sg;
     private Graph graph;
     private ST<String, String> wordDefinitions;
 
+
     public SynonymGraph() {
-        this.sg = new SymbolGraphMemoryEfficient("Resources/synonyms.txt", ",");
+        this.sg = new SymbolGraphMemoryEfficient("src/main/resources/synonyms.txt", ",");
         this.graph = sg.graph();
         wordDefinitions = new ST<>();
     }
@@ -163,6 +165,21 @@ public class SynonymGraph {
         // NEW: Return null if no valid path found after all attempts
         return null;
     }
+    public Graph getGraph() {
+        return graph;
+    }
+
+    public boolean contains(String word) {
+        return sg.contains(word);
+    }
+
+    public int indexOf(String word) {
+        return sg.indexOf(word);
+    }
+
+    public String nameOf(int v) {
+        return sg.nameOf(v);
+    }
 
     /**
      * Gets a limited number of synonyms for words in the path from start to end
@@ -242,14 +259,14 @@ public class SynonymGraph {
     }
 
     private static void testModifiedSymbolGraph() {
-        SymbolGraph sg = new SymbolGraph("src/Resources/mthesaur.txt", ",");
+        SymbolGraph sg = new SymbolGraph("src/main/resources/mthesaur.txt", ",");
         Graph graph = sg.graph();
         System.out.println("Original Class");
         System.out.println("Edges: " + graph.E());
         System.out.println("Vertices: " + graph.V());
         System.out.println();
 
-        SymbolGraphMemoryEfficient sg2 = new SymbolGraphMemoryEfficient("src/Resources/mthesaur.txt", ",");
+        SymbolGraphMemoryEfficient sg2 = new SymbolGraphMemoryEfficient("src/main/resources/synonyms.txt", ",");
         Graph graph2 = sg2.graph();
         System.out.println("Modified Class");
         System.out.println("Edges: " + graph2.E());
@@ -258,6 +275,8 @@ public class SynonymGraph {
 
         System.out.println("Edges duplicated: " + (graph.E() - graph2.E()));
         System.out.println();
+
+        System.setProperty("org.graphstream.ui", "javafx");
     }
 
     private static void wordConnection(SynonymGraph sg, In in) {
@@ -296,5 +315,6 @@ public class SynonymGraph {
             System.out.println("Connection Level: " + (path.size() - 1));
         }
         System.out.println();
+
     }
 }
