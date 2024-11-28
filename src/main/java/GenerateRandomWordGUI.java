@@ -4,7 +4,6 @@ import org.graphstream.graph.IdAlreadyInUseException;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;

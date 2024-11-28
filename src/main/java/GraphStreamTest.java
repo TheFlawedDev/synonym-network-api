@@ -2,7 +2,6 @@ import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
-import org.graphstream.ui.spriteManager.*;
 import org.graphstream.ui.view.Viewer;
 import java.util.*;
 
