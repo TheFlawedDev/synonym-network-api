@@ -1,41 +1,45 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 
 /**
- * A container GUI class that manages and switches between different synonym-related interfaces.
- * This class serves as the main container for multiple synonym exploration tools, providing
- * a toggle mechanism to switch between different functionalities.
+ * Constructs a `SynonymGuiContainer` window that serves as a container for
+ * multiple synonym-related graphical user interfaces.
  *
- * <p>The container includes:
- * <ul>
- *     <li>A PathFindingGUI for exploring synonym paths between words</li>
- *     <li>A GenerateRandomWordGUI for random word exploration</li>
- *     <li>A toggle button to switch between interfaces</li>
- * </ul>
+ * This class uses a `CardLayout` to switch between different GUI panels, such
+ * as the `PathFindingGUI` for exploring synonym connections and the
+ * `GenerateRandomWordGUI` for generating random word interactions.
  *
- * <p>The class uses CardLayout to manage the switching between different interfaces,
- * ensuring only one interface is visible at a time while maintaining the state of both.
+ * The constructor initializes and sets up the container, ensuring the layout
+ * and panels are properly configured for user interaction.
+ *
+ * @author Jorge Velazquez, Nick Budd
  */
 public class SynonymGuiContainer extends JFrame {
+    private static final long serialVersionUID = 1L;
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private PathFindingGUI pathFindingGUI;
     private GenerateRandomWordGUI randomWordGUI;
 
+    /**
+     * Constructs a new SynonymGuiContainer.
+     */
     public SynonymGuiContainer() {
         setupContainer();
     }
 
-    /**
-     * Sets up the main container and initializes all GUI components.
-     * This method:
-     * <ul>
-     *     <li>Sets up the frame properties</li>
-     *     <li>Creates and configures the toggle button</li>
-     *     <li>Initializes the card layout and its components</li>
-     *     <li>Sets up the action listeners for interface switching</li>
-     *     <li>Configures the initial layout and positioning</li>
-     * </ul>
+    /*
+     * Configures the main container layout and components. Initializes the
+     * `PathFindingGUI` and `GenerateRandomWordGUI` as switchable views managed by a
+     * `CardLayout`. Includes a toggle button to switch between the two GUIs and
+     * ensures they are displayed within the main application window.
      */
     private void setupContainer() {
         setTitle("Synonym Network Explorer");
@@ -54,14 +58,19 @@ public class SynonymGuiContainer extends JFrame {
         cardPanel = new JPanel(cardLayout);
 
         // Initialize GUIs without making them visible
-        pathFindingGUI = new PathFindingGUI() {
+        SynonymGraph synonymGraph = new SynonymGraph();
+        pathFindingGUI = new PathFindingGUI(synonymGraph) {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public void setVisible(boolean visible) {
                 // Override to prevent independent window
             }
         };
 
-        randomWordGUI = new GenerateRandomWordGUI() {
+        randomWordGUI = new GenerateRandomWordGUI(synonymGraph) {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public void setVisible(boolean visible) {
                 // Override to prevent independent window
@@ -80,7 +89,6 @@ public class SynonymGuiContainer extends JFrame {
             boolean isSelected = toggleButton.isSelected();
             toggleButton.setText(isSelected ? "Random Path" : "Path Finding");
             cardLayout.show(cardPanel, isSelected ? "RandomPath" : "PathFinding");
-            pack();
         });
 
         // Set initial size and position
@@ -88,6 +96,12 @@ public class SynonymGuiContainer extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Initializes the `SynonymGuiContainer`, ensuring all GUI components are
+     * created and managed on the Event Dispatch Thread (EDT).
+     *
+     * @param args command-line arguments (not used in this application)
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             SynonymGuiContainer container = new SynonymGuiContainer();

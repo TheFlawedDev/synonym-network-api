@@ -1,44 +1,50 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.IdAlreadyInUseException;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
-import javax.swing.*;
-import javax.swing.border.AbstractBorder;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.swing.border.EmptyBorder;
-import java.awt.Font;
-
-import static javax.swing.BorderFactory.createLineBorder;
 
 /**
  * A graphical user interface for exploring synonym relationships between words.
- * This class provides a visual representation of synonym paths between two words
- * using GraphStream library for graph visualization and Swing for the GUI components.
+ * This class provides a visual representation of synonym paths between two
+ * words using GraphStream library for graph visualization and Swing for the GUI
+ * components.
  *
- * <p>The GUI consists of several main components:
- * <ul>
- *     <li>Input fields for source and target words</li>
- *     <li>An interactive graph visualization area</li>
- *     <li>An analysis panel showing path information</li>
- *     <li>Control buttons for exploration and reset functionality</li>
- * </ul>
+ * The interface allows users to: - Input source and target words - Visualize
+ * the synonym path between words - View related synonyms along the path - Reset
+ * the visualization
  *
- * <p>Key features:
- * <ul>
- *     <li>Visual representation of synonym paths between words</li>
- *     <li>Color-coded nodes indicating start, end, and intermediate words</li>
- *     <li>Display of related synonyms along the path</li>
- *     <li>Word definitions viewer</li>
- *     <li>Reset functionality to clear the visualization</li>
- * </ul>
+ * @author Jorge Velazquez, Nick Budd
  */
 public class PathFindingGUI extends JFrame {
+    private static final long serialVersionUID = 1L;
     private SynonymGraph synonymGraph;
     private JTextField sourceWordField;
     private JTextField targetWordField;
@@ -51,7 +57,11 @@ public class PathFindingGUI extends JFrame {
     private List<String> path;
     private JButton definitionsButton;
 
-
+    /**
+     * Constructs a new PathFindingGUI window when running PathFindingGUI alone.
+     * Initializes the synonym graph, sets up the GraphStream display properties,
+     * and configures the GUI components.
+     */
     public PathFindingGUI() {
         synonymGraph = new SynonymGraph();
         System.setProperty("org.graphstream.ui", "swing");
@@ -59,6 +69,25 @@ public class PathFindingGUI extends JFrame {
         setupGUI();
     }
 
+    /**
+     * Overloaded Constructor. Constructs a new PathFindingGUI when given a
+     * SynonymGraph from a container. Initializes the synonym graph, sets up the
+     * GraphStream display properties, and configures the GUI components.
+     *
+     * @param graph
+     */
+    public PathFindingGUI(SynonymGraph graph) {
+        synonymGraph = graph;
+        System.setProperty("org.graphstream.ui", "swing");
+        displayGraph = new SingleGraph("Synonym Network");
+        setupGUI();
+    }
+
+    /*
+     * Sets up the GUI components and layouts. Initializes and arranges: - Input
+     * fields for source and target words - Control buttons - Graph visualization
+     * panel - Analysis text area
+     */
     private void setupGUI() {
         setTitle("Synonym Network Explorer");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -136,14 +165,13 @@ public class PathFindingGUI extends JFrame {
     private JPanel createExploreButtonPanel(String buttonLabel) {
         JPanel buttonWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonWrapper.setBackground(Color.WHITE);
-        if(buttonLabel.equals("Definitions")){
+        if (buttonLabel.equals("Definitions")) {
             definitionsButton = new JButton(buttonLabel);
             styleExploreButton(definitionsButton);
-            definitionsButton.addActionListener(e ->showDefinitions());
+            definitionsButton.addActionListener(e -> showDefinitions());
             buttonWrapper.add(definitionsButton);
             return buttonWrapper;
-        }
-        else {
+        } else {
             exploreButton = new JButton(buttonLabel);
             styleExploreButton(exploreButton);
             exploreButton.addActionListener(e -> exploreConnection());
@@ -157,10 +185,8 @@ public class PathFindingGUI extends JFrame {
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
         mainPanel.setPreferredSize(new Dimension(800, 400));
-        mainPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(0, 20, 20, 20),
-                createLineBorder(new Color(230, 230, 230))
-        ));
+        mainPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20),
+                BorderFactory.createLineBorder(new Color(230, 230, 230))));
 
         viewer = displayGraph.display();
         SwingUtilities.invokeLater(() -> {
@@ -196,10 +222,9 @@ public class PathFindingGUI extends JFrame {
 
     private void styleTextField(JTextField textField) {
         textField.setPreferredSize(new Dimension(200, 35));
-        textField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
-        ));
+        textField.setBorder(
+                BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+                        BorderFactory.createEmptyBorder(5, 10, 5, 10)));
         textField.setFont(new Font("SansSerif", Font.PLAIN, 14));
     }
 
@@ -217,12 +242,22 @@ public class PathFindingGUI extends JFrame {
         button.setPreferredSize(new Dimension(80, 30));
         button.setBackground(Color.WHITE);
         button.setForeground(Color.BLACK);
-        button.setBorder(createLineBorder(new Color(200, 200, 200), 1));
+        button.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
         button.setFocusPainted(false);
         button.setFont(new Font("SansSerif", Font.PLAIN, 14));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
+    /*
+     * Explores and visualizes the synonym connection between the source and target
+     * words. This method: - Validates input words - Finds the shortest path between
+     * words - Creates a visual graph representation - Displays related synonyms -
+     * Updates the analysis text area with path information
+     *
+     * The visualization includes: - Source node (blue) - Target node (red) - Path
+     * nodes (black) - Synonym nodes (gray) - Path edges (blue) - Synonym edges
+     * (gray)
+     */
     private void exploreConnection() {
         String sourceWord = sourceWordField.getText().trim().toLowerCase();
         String targetWord = targetWordField.getText().trim().toLowerCase();
@@ -235,14 +270,13 @@ public class PathFindingGUI extends JFrame {
         SwingUtilities.invokeLater(() -> {
             displayGraph.clear();
             displayGraph.setAttribute("ui.stylesheet",
-                    "node { size: 20px; fill-color: #777; text-offset: 0px, -15px; text-alignment: above; text-size: 20; text-color: #000000;} " +
-                            "node.start {fill-color: blue;} " +  // Royal Blue for start
-                            "node.path { fill-color: #2E8B57; } " +   // Sea Green for intermediate
-                            "node.end { fill-color: #DC143C; } " +    // Crimson for end
+                    "node { size: 20px; fill-color: #777; text-offset: 0px, -15px; text-alignment: above; text-size: 20; text-color: #000000;} "
+                            + "node.start {fill-color: blue;} " + // Royal Blue for start
+                            "node.path { fill-color: #2E8B57; } " + // Sea Green for intermediate
+                            "node.end { fill-color: #DC143C; } " + // Crimson for end
                             "node.synonym { fill-color: #808080; } " + // Gray for synonyms
-                            "edge { fill-color: #000000;} " +
-                            "edge.path { fill-color: #4169E1; size: 2px; } " +
-                            "edge.synonym { fill-color: #808080; }");
+                            "edge { fill-color: #000000;} " + "edge.path { fill-color: #4169E1; size: 2px; } "
+                            + "edge.synonym { fill-color: #808080; }");
 
             path = synonymGraph.findPath(sourceWord, targetWord);
             Map<String, Set<String>> pathSynonyms = synonymGraph.getPathSynonyms(path);
@@ -304,7 +338,7 @@ public class PathFindingGUI extends JFrame {
         });
     }
 
-    /**
+    /*
      * Displays all of the definitions from the words from the path created by the
      * exploreConnection, given that a path was created.
      */
@@ -345,6 +379,10 @@ public class PathFindingGUI extends JFrame {
         definitionsFrame.add(scrollPane, BorderLayout.CENTER);
     }
 
+    /*
+     * Resets the GUI to its initial state. Clears: - Input fields - Graph
+     * visualization - Analysis text area - Path
+     */
     private void resetAll() {
         SwingUtilities.invokeLater(() -> {
             sourceWordField.setText("");
@@ -355,6 +393,11 @@ public class PathFindingGUI extends JFrame {
         path = null;
     }
 
+    /**
+     * Displays the PathFindingGUI application using the Swing framework.
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new PathFindingGUI().setVisible(true));
     }

@@ -1,19 +1,50 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.IdAlreadyInUseException;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
-import javax.swing.*;
-import javax.swing.border.AbstractBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.BorderUIResource;
-import java.awt.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
+/**
+ * A graphical user interface for generating random synonyms at a certain target
+ * depth. This class provides a visual representation of synonym paths between
+ * two words using GraphStream library for graph visualization and Swing for the
+ * GUI components.
+ *
+ * The interface allows users to: - Input a source word and target depth -
+ * Visualize the synonym path between words - View related synonyms along the
+ * path - View the synonym path definitions - Reset the visualization
+ *
+ * @author Jorge Velazquez, Nick Budd
+ */
 public class GenerateRandomWordGUI extends JFrame {
+	private static final long serialVersionUID = 1L;
 	private SynonymGraph synonymGraph;
 	List<String> randomPath;
 	private JTextField sourceWordField;
@@ -26,6 +57,11 @@ public class GenerateRandomWordGUI extends JFrame {
 	private JPanel mainPanel;
 	private JButton definitionsButton;
 
+	/**
+	 * Constructs a new GenerateRandomWordGUI window when running
+	 * GenerateRandomWordGUI alone. Initializes the synonym graph, sets up the
+	 * GraphStream display properties, and configures the GUI components.
+	 */
 	public GenerateRandomWordGUI() {
 		synonymGraph = new SynonymGraph();
 		System.setProperty("org.graphstream.ui", "swing");
@@ -33,6 +69,25 @@ public class GenerateRandomWordGUI extends JFrame {
 		setupGUI();
 	}
 
+	/**
+	 * Overloaded Constructor. Constructs a new GenerateRandomWordGUI when given a
+	 * SynonymGraph from a container. Initializes the synonym graph, sets up the
+	 * GraphStream display properties, and configures the GUI components.
+	 *
+	 * @param graph
+	 */
+	public GenerateRandomWordGUI(SynonymGraph graph) {
+		synonymGraph = graph;
+		System.setProperty("org.graphstream.ui", "swing");
+		displayGraph = new SingleGraph("Random Synonym Path");
+		setupGUI();
+	}
+
+	/*
+	 * Sets up the GUI components and layouts. Initializes and arranges: - Input
+	 * fields for the source word and target depth - Control buttons - Graph
+	 * visualization panel - Analysis text area
+	 */
 	private void setupGUI() {
 		setTitle("Synonym Network Explorer");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,7 +117,8 @@ public class GenerateRandomWordGUI extends JFrame {
 		titlePanel.setBorder(new EmptyBorder(20, 20, 10, 20));
 
 		JLabel titleLabel = createStyledLabel("Synonym Network Explorer", "Monospace", Font.BOLD, 24);
-		JLabel subtitleLabel = createStyledLabel("Generate random word based on depth level", "SansSerif", Font.PLAIN, 14);
+		JLabel subtitleLabel = createStyledLabel("Generate random word based on depth level", "SansSerif", Font.PLAIN,
+				14);
 		subtitleLabel.setForeground(Color.GRAY);
 
 		titlePanel.add(titleLabel);
@@ -110,14 +166,13 @@ public class GenerateRandomWordGUI extends JFrame {
 	private JPanel createExploreButtonPanel(String buttonLabel) {
 		JPanel buttonWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonWrapper.setBackground(Color.WHITE);
-		if(buttonLabel.equals("Definitions")){
+		if (buttonLabel.equals("Definitions")) {
 			definitionsButton = new JButton(buttonLabel);
 			styleExploreButton(definitionsButton);
-			definitionsButton.addActionListener(e ->showDefinitions());
+			definitionsButton.addActionListener(e -> showDefinitions());
 			buttonWrapper.add(definitionsButton);
 			return buttonWrapper;
-		}
-		else {
+		} else {
 			exploreButton = new JButton(buttonLabel);
 			styleExploreButton(exploreButton);
 			exploreButton.addActionListener(e -> generateRandomPath());
@@ -131,10 +186,8 @@ public class GenerateRandomWordGUI extends JFrame {
 		mainPanel = new JPanel(new BorderLayout());
 		mainPanel.setBackground(Color.WHITE);
 		mainPanel.setPreferredSize(new Dimension(800, 400));
-		mainPanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createEmptyBorder(0, 20, 20, 20),
-				BorderFactory.createLineBorder(new Color(230, 230, 230))
-		));
+		mainPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20),
+				BorderFactory.createLineBorder(new Color(230, 230, 230))));
 
 		viewer = displayGraph.display();
 		SwingUtilities.invokeLater(() -> {
@@ -170,10 +223,9 @@ public class GenerateRandomWordGUI extends JFrame {
 
 	private void styleTextField(JTextField textField) {
 		textField.setPreferredSize(new Dimension(200, 35));
-		textField.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
-				BorderFactory.createEmptyBorder(5, 10, 5, 10)
-		));
+		textField.setBorder(
+				BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+						BorderFactory.createEmptyBorder(5, 10, 5, 10)));
 		textField.setFont(new Font("SansSerif", Font.PLAIN, 14));
 	}
 
@@ -197,33 +249,45 @@ public class GenerateRandomWordGUI extends JFrame {
 		button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 	}
 
+	/*
+	 * Generates a random synonym path and visualizes the path between words. This
+	 * method: - Validates the input word and target depth - Creates a random path
+	 * based on target depth and source word - Creates a visual graph representation
+	 * - Displays related synonyms - Updates the analysis text area with path
+	 * information
+	 *
+	 * The visualization includes: - Source node (blue) - Last node (red) - Path
+	 * nodes (black) - Synonym nodes (gray) - Path edges (blue) - Synonym edges
+	 * (gray)
+	 */
 	private void generateRandomPath() {
 		String startWord = sourceWordField.getText().trim().toLowerCase();
 		String depthStr = depthLevelField.getText().trim();
 
 		if (startWord.isEmpty() || depthStr.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Please enter both start word and depth", "Input Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Please enter both start word and depth", "Input Error",
+					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
 		try {
 			int targetDepth = Integer.parseInt(depthStr);
 			if (targetDepth < 1) {
-				JOptionPane.showMessageDialog(this, "Depth must be at least 1", "Input Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Depth must be at least 1", "Input Error",
+						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
 			SwingUtilities.invokeLater(() -> {
 				displayGraph.clear();
 				displayGraph.setAttribute("ui.stylesheet",
-						"node { size: 20px; fill-color: #777; text-offset: 0px, -15px; text-alignment: above; text-size: 20; text-color: #000000;} " +
-								"node.start {fill-color: blue;} " +  // Royal Blue for start
-								"node.path { fill-color: #2E8B57; } " +   // Sea Green for intermediate
-								"node.end { fill-color: #DC143C; } " +    // Crimson for end
+						"node { size: 20px; fill-color: #777; text-offset: 0px, -15px; text-alignment: above; text-size: 20; text-color: #000000;} "
+								+ "node.start {fill-color: blue;} " + // Royal Blue for start
+								"node.path { fill-color: #2E8B57; } " + // Sea Green for intermediate
+								"node.end { fill-color: #DC143C; } " + // Crimson for end
 								"node.synonym { fill-color: #808080; } " + // Gray for synonyms
-								"edge { fill-color: #000000;} " +
-								"edge.path { fill-color: #4169E1; size: 2px; } " +
-								"edge.synonym { fill-color: #808080; }");
+								"edge { fill-color: #000000;} " + "edge.path { fill-color: #4169E1; size: 2px; } "
+								+ "edge.synonym { fill-color: #808080; }");
 
 				randomPath = synonymGraph.generateWordAtDepth(startWord, targetDepth);
 
@@ -289,9 +353,15 @@ public class GenerateRandomWordGUI extends JFrame {
 				analysisArea.setText(analysis.toString());
 			});
 		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(this, "Please enter a valid number for depth", "Input Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Please enter a valid number for depth", "Input Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
+
+	/*
+	 * Displays all of the definitions from the words from the path created by the
+	 * generateRandomPath, given that a path was created.
+	 */
 	private void showDefinitions() {
 		if (randomPath == null) {
 			JOptionPane.showMessageDialog(this, "Please explore the synonym connection before viewing the definitions.",
@@ -329,6 +399,10 @@ public class GenerateRandomWordGUI extends JFrame {
 		definitionsFrame.add(scrollPane, BorderLayout.CENTER);
 	}
 
+	/*
+	 * Resets the GUI to its initial state. Clears: - Input fields - Graph
+	 * visualization - Analysis text area - Path
+	 */
 	private void resetAll() {
 		SwingUtilities.invokeLater(() -> {
 			sourceWordField.setText("");
@@ -339,6 +413,11 @@ public class GenerateRandomWordGUI extends JFrame {
 		randomPath = null;
 	}
 
+	/**
+	 * Displays the PathFindingGUI application using the Swing framework.
+	 *
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> new GenerateRandomWordGUI().setVisible(true));
 	}

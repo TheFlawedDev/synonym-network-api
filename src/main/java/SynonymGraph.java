@@ -1,37 +1,54 @@
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
-import edu.princeton.cs.algs4.*;
-import org.graphstream.graph.implementations.SingleGraph;
-
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+
+import edu.princeton.cs.algs4.BreadthFirstPaths;
+import edu.princeton.cs.algs4.Graph;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.SeparateChainingHashST;
+import edu.princeton.cs.algs4.StdRandom;
+import edu.princeton.cs.algs4.SymbolGraph;
 
 /**
  * SynonymGraph represents a graph-based structure for exploring relationships
  * between words and their synonyms. It provides functionality to find paths,
  * calculate connection levels, and retrieve synonyms in the graph.
  *
- * <p>The graph is built using data from a file containing synonyms, where each
+ * <p>
+ * The graph is built using data from a file containing synonyms, where each
  * line represents a pair of related words. SynonymGraph leverages efficient
- * memory usage and the SymbolGraphMemoryEfficient class for indexing and lookup.
+ * memory usage and the SymbolGraphMemoryEfficient class for indexing and
+ * lookup.
  *
- * <p>Features include:
+ * <p>
+ * Features include:
  * <ul>
- *   <li>Finding the shortest path between two words using breadth-first search.</li>
- *   <li>Calculating the minimum number of synonym connections (levels) between two words.</li>
- *   <li>Fetching limited synonyms for words along a given path.</li>
+ * <li>Finding the shortest path between two words using breadth-first
+ * search.</li>
+ * <li>Calculating the minimum number of synonym connections (levels) between
+ * two words.</li>
+ * <li>Fetching limited synonyms for words along a given path.</li>
  * </ul>
  *
  * Dependencies:
  * <ul>
- *   <li>edu.princeton.cs.algs4.Graph</li>
- *   <li>edu.princeton.cs.algs4.BreadthFirstPaths</li>
- *   <li>edu.princeton.cs.algs4.ST</li>
- *   <li>SymbolGraphMemoryEfficient - a custom implementation of SymbolGraph Class.</li>
+ * <li>edu.princeton.cs.algs4.Graph</li>
+ * <li>edu.princeton.cs.algs4.BreadthFirstPaths</li>
+ * <li>edu.princeton.cs.algs4.ST</li>
+ * <li>SymbolGraphMemoryEfficient - a custom implementation of SymbolGraph
+ * Class.</li>
  * </ul>
  *
  * Example Usage:
+ *
  * <pre>
  * {@code
  * SynonymGraph sg = new SynonymGraph();
@@ -41,8 +58,9 @@ import java.util.*;
  * }
  * </pre>
  *
- * <p>Input files must be formatted as plain text with synonyms separated by a delimiter
- * (e.g., commas). By default, the file is located at "Resources/".
+ * <p>
+ * Input files must be formatted as plain text with synonyms separated by a
+ * delimiter (e.g., commas). By default, the file is located at "Resources/".
  *
  * @author Jorge Velazquez, Nick Budd
  * @version 1.2
@@ -61,6 +79,7 @@ public class SynonymGraph {
         wordDefinitions = fillWordDefinitions();
     }
 
+    // Fills symbol table up with Words as keys, and definitions as values.
     private SeparateChainingHashST<String, String> fillWordDefinitions() {
         String filePath = "src/main/resources/dict.csv";
         SeparateChainingHashST<String, String> st = new SeparateChainingHashST<>();
@@ -127,6 +146,28 @@ public class SynonymGraph {
     }
 
     /**
+     * TODO: Improve path generation to guarantee target depth
+     *
+     * Current implementation: - Uses MAX_ATTEMPTS (100) to repeatedly try
+     * generating valid paths - Returns null if no path of exact target depth is
+     * found
+     *
+     * Limitation: Current approach relies on random generation which may miss valid
+     * paths
+     *
+     * Proposed improvement: - Use graph traversal to first identify all words that
+     * exist at the target depth - Then generate paths specifically to those
+     * pre-identified target words
+     *
+     * Challenge to solve: How to efficiently identify all words at a specific depth
+     * from the start word without having a target end word?
+     *
+     * Possible approach: - Use BFS/DFS to map all words at each depth level from
+     * start word - Select target word from the mapped depth level - Generate path
+     * to chosen target word
+     */
+
+    /**
      * Generates a list of connected words randomly from the start word. The count
      * of connections will be the same number as the target depth.
      *
@@ -139,12 +180,15 @@ public class SynonymGraph {
         if (!sg.contains(startWord))
             return null;
 
+        // NEW: Maximum attempts counter
         final int MAX_ATTEMPTS = 100;
 
+        // NEW: Outer retry loop
         for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             List<String> randomWordPath = new ArrayList<String>();
             randomWordPath.add(startWord);
 
+            // NEW: Path validity tracker
             boolean pathFound = true;
 
             for (int i = 0; i < targetDepth; i++) {
@@ -157,6 +201,7 @@ public class SynonymGraph {
                     }
                 }
 
+                // MODIFIED: Empty list handling
                 if (adjList.isEmpty()) {
                     pathFound = false; // NEW
                     break;
@@ -166,10 +211,12 @@ public class SynonymGraph {
                 randomWordPath.add(adjList.get(randomIndex));
             }
 
+            // NEW: Check for valid path before returning
             if (pathFound && randomWordPath.size() == targetDepth + 1) {
                 return randomWordPath;
             }
         }
+        // NEW: Return null if no valid path found after all attempts
         return null;
     }
 
@@ -210,6 +257,9 @@ public class SynonymGraph {
         return allSynonyms;
     }
 
+    /**
+     * Testing client for SynonymGraph class.
+     */
     public static void main(String[] args) {
         SynonymGraph sg = new SynonymGraph();
         In scanner = new In();
