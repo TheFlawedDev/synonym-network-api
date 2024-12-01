@@ -1,5 +1,10 @@
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import edu.princeton.cs.algs4.*;
 import org.graphstream.graph.implementations.SingleGraph;
+
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -45,72 +50,81 @@ import java.util.*;
 public class SynonymGraph {
     private SymbolGraphMemoryEfficient sg;
     private Graph graph;
-    private ST<String, String> wordDefinitions;
+    private SeparateChainingHashST<String, String> wordDefinitions;
 
-
+    /**
+     * Constructor initializes fields.
+     */
     public SynonymGraph() {
-        this.sg = new SymbolGraphMemoryEfficient("src/main/resources/synonyms.txt", ",");
+        this.sg = new SymbolGraphMemoryEfficient("src/main/resources/mthesaur.txt", ",");
         this.graph = sg.graph();
-        wordDefinitions = new ST<>();
+        wordDefinitions = fillWordDefinitions();
+    }
+
+    private SeparateChainingHashST<String, String> fillWordDefinitions() {
+        String filePath = "src/main/resources/dict.csv";
+        SeparateChainingHashST<String, String> st = new SeparateChainingHashST<>();
+
+        try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
+            List<String[]> rows = reader.readAll();
+            for (String[] row : rows) {
+                st.put(row[0], row[1]);
+            }
+        } catch (IOException | CsvException e) {
+            e.printStackTrace();
+        }
+        return st;
     }
 
     /**
-     * Finds the shortest path between two words in the synonym graph.
-     * Uses breadth-first search to determine the sequence of words connecting start to end.
+     * Returns the definition of the word provided if the key is in the dictionary.
+     *
+     * @param word
+     * @return the definition of the word provided.
+     */
+    public String findWordDefinition(String word) {
+        if (wordDefinitions.get(word) == null)
+            return "This word is not currently in our dictionary.";
+
+        return wordDefinitions.get(word);
+    }
+
+    /**
+     * Finds the shortest path between two words in the synonym graph. Uses
+     * breadth-first search to determine the sequence of words connecting start to
+     * end.
      *
      * @param start The starting word to find a path from
      * @param end   The target word to find a path to
-     * @return List of words forming the shortest path from start to end, or empty list if no path exists
+     * @return List of words forming the shortest path from start to end, or empty
+     *         list if no path exists
      */
     public List<String> findPath(String start, String end) {
-        //check if the words are in the graph
+        // check if the words are in the graph
         if (!sg.contains(start) || !sg.contains(end)) {
             return null;
         }
 
-        //get the start and end vertices
+        // get the start and end vertices
         int startVertex = sg.indexOf(start);
         int endVertex = sg.indexOf(end);
 
-        //use bfs to find the shortest path
+        // use bfs to find the shortest path
         BreadthFirstPaths bfs = new BreadthFirstPaths(graph, startVertex);
 
-        //return message if there is no path
+        // return message if there is no path
         if (!bfs.hasPathTo(endVertex)) {
             return null;
         }
 
-        //return path of vertices as a list of words
+        // return path of vertices as a list of words
         List<String> path = new ArrayList<>();
         for (int vertex : bfs.pathTo(endVertex)) {
             path.add(sg.nameOf(vertex));
         }
 
-
         return path;
     }
-
-    /**
-     * TODO: Improve path generation to guarantee target depth
-     *
-     * Current implementation:
-     * - Uses MAX_ATTEMPTS (100) to repeatedly try generating valid paths
-     * - Returns null if no path of exact target depth is found
-     *
-     * Limitation: Current approach relies on random generation which may miss valid paths
-     *
-     * Proposed improvement:
-     * - Use graph traversal to first identify all words that exist at the target depth
-     * - Then generate paths specifically to those pre-identified target words
-     *
-     * Challenge to solve: How to efficiently identify all words at a specific depth
-     * from the start word without having a target end word?
-     *
-     * Possible approach:
-     * - Use BFS/DFS to map all words at each depth level from start word
-     * - Select target word from the mapped depth level
-     * - Generate path to chosen target word
-     */
 
     /**
      * Generates a list of connected words randomly from the start word. The count
@@ -125,15 +139,12 @@ public class SynonymGraph {
         if (!sg.contains(startWord))
             return null;
 
-        // NEW: Maximum attempts counter
         final int MAX_ATTEMPTS = 100;
 
-        // NEW: Outer retry loop
         for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             List<String> randomWordPath = new ArrayList<String>();
             randomWordPath.add(startWord);
 
-            // NEW: Path validity tracker
             boolean pathFound = true;
 
             for (int i = 0; i < targetDepth; i++) {
@@ -146,9 +157,8 @@ public class SynonymGraph {
                     }
                 }
 
-                // MODIFIED: Empty list handling
                 if (adjList.isEmpty()) {
-                    pathFound = false;  // NEW
+                    pathFound = false; // NEW
                     break;
                 }
 
@@ -156,29 +166,11 @@ public class SynonymGraph {
                 randomWordPath.add(adjList.get(randomIndex));
             }
 
-            // NEW: Check for valid path before returning
             if (pathFound && randomWordPath.size() == targetDepth + 1) {
                 return randomWordPath;
             }
         }
-
-        // NEW: Return null if no valid path found after all attempts
         return null;
-    }
-    public Graph getGraph() {
-        return graph;
-    }
-
-    public boolean contains(String word) {
-        return sg.contains(word);
-    }
-
-    public int indexOf(String word) {
-        return sg.indexOf(word);
-    }
-
-    public String nameOf(int v) {
-        return sg.nameOf(v);
     }
 
     /**
@@ -226,8 +218,9 @@ public class SynonymGraph {
             System.out.println("Choose an option:");
             System.out.println("1. Find connection between two words");
             System.out.println("2. Generate a random path of connected words");
-            System.out.println("3. Test modified SymbolGraph class");
-            System.out.println("4. Exit");
+            System.out.println("3. Test wordDefinitions");
+            System.out.println("4. Test modified SymbolGraph class");
+            System.out.println("5. Exit");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.readInt();
@@ -235,19 +228,23 @@ public class SynonymGraph {
             switch (choice) {
                 case 1:
                     System.out.println();
-                    wordConnection(sg, scanner);
+                    testWordConnection(sg, scanner);
                     break;
 
                 case 2:
                     System.out.println();
-                    generateRandomWord(sg, scanner);
+                    testGenerateRandomWord(sg, scanner);
                     break;
                 case 3:
+                    System.out.println();
+                    testWordDefinitions(sg, scanner);
+                    break;
+                case 4:
                     System.out.println();
                     testModifiedSymbolGraph();
                     break;
 
-                case 4:
+                case 5:
                     System.out.println("\nExiting the program");
                     return;
 
@@ -279,7 +276,7 @@ public class SynonymGraph {
         System.setProperty("org.graphstream.ui", "javafx");
     }
 
-    private static void wordConnection(SynonymGraph sg, In in) {
+    private static void testWordConnection(SynonymGraph sg, In in) {
         List<String> path;
 
         System.out.print("Enter starting word: ");
@@ -298,7 +295,7 @@ public class SynonymGraph {
         System.out.println();
     }
 
-    private static void generateRandomWord(SynonymGraph sg, In in) {
+    private static void testGenerateRandomWord(SynonymGraph sg, In in) {
         List<String> path;
 
         System.out.print("Enter starting word: ");
@@ -315,6 +312,13 @@ public class SynonymGraph {
             System.out.println("Connection Level: " + (path.size() - 1));
         }
         System.out.println();
+    }
 
+    private static void testWordDefinitions(SynonymGraph sg, In in) {
+        System.out.print("Enter a word: ");
+
+        String word = in.readString().trim().toLowerCase();
+        System.out.println(sg.findWordDefinition(word));
+        System.out.println();
     }
 }

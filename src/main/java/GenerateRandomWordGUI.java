@@ -5,6 +5,9 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
 import javax.swing.*;
+import javax.swing.border.AbstractBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.BorderUIResource;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +15,7 @@ import java.util.Set;
 
 public class GenerateRandomWordGUI extends JFrame {
 	private SynonymGraph synonymGraph;
+	List<String> randomPath;
 	private JTextField sourceWordField;
 	private JTextField depthLevelField;
 	private JButton exploreButton;
@@ -20,6 +24,7 @@ public class GenerateRandomWordGUI extends JFrame {
 	private Graph displayGraph;
 	private Viewer viewer;
 	private JPanel mainPanel;
+	private JButton definitionsButton;
 
 	public GenerateRandomWordGUI() {
 		synonymGraph = new SynonymGraph();
@@ -29,61 +34,167 @@ public class GenerateRandomWordGUI extends JFrame {
 	}
 
 	private void setupGUI() {
-		setTitle("Random Synonym Path Generator");
+		setTitle("Synonym Network Explorer");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new BorderLayout(10, 10));
+		getContentPane().setBackground(Color.WHITE);
 
-		// Input Panel
-		JPanel inputPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		inputPanel.add(new JLabel("Start Word:"), gbc);
-
-		gbc.gridx = 1;
-		sourceWordField = new JTextField(15);
-		inputPanel.add(sourceWordField, gbc);
-
-		gbc.gridx = 2;
-		inputPanel.add(new JLabel("Target Depth:"), gbc);
-
-		gbc.gridx = 3;
-		depthLevelField = new JTextField(15);
-		inputPanel.add(depthLevelField, gbc);
-
-		gbc.gridx = 4;
-		exploreButton = new JButton("Generate Path");
-		exploreButton.addActionListener(e -> generateRandomPath());
-		inputPanel.add(exploreButton, gbc);
-
-		gbc.gridx = 5;
-		resetButton = new JButton("Reset");
-		resetButton.addActionListener(e -> resetAll());
-		inputPanel.add(resetButton, gbc);
-
-		add(inputPanel, BorderLayout.NORTH);
-
-		// Graph Panel
-		mainPanel = new JPanel(new BorderLayout());
-		mainPanel.setPreferredSize(new Dimension(1000, 600));
-		viewer = displayGraph.display();
-		displayGraph.setAttribute("layout.stabilization-limit", 0);
-		displayGraph.setAttribute("layout.quality", 4);
-		viewer.enableAutoLayout();
-		SwingUtilities.invokeLater(() -> {
-			mainPanel.add((Component) viewer.addDefaultView(false), BorderLayout.CENTER);
-		});
-		add(mainPanel, BorderLayout.CENTER);
-
-		// Analysis Panel
-		analysisArea = new JTextArea(5, 40);
-		analysisArea.setEditable(false);
-		add(new JScrollPane(analysisArea), BorderLayout.SOUTH);
+		add(createTopPanel(), BorderLayout.NORTH);
+		add(createGraphPanel(), BorderLayout.CENTER);
+		add(createAnalysisPanel(), BorderLayout.SOUTH);
 
 		pack();
 		setLocationRelativeTo(null);
+	}
+
+	private JPanel createTopPanel() {
+		JPanel topPanel = new JPanel(new BorderLayout());
+		topPanel.setBackground(Color.WHITE);
+		topPanel.add(createTitlePanel(), BorderLayout.NORTH);
+		topPanel.add(createInputPanel(), BorderLayout.CENTER);
+		return topPanel;
+	}
+
+	private JPanel createTitlePanel() {
+		JPanel titlePanel = new JPanel();
+		titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
+		titlePanel.setBackground(Color.WHITE);
+		titlePanel.setBorder(new EmptyBorder(20, 20, 10, 20));
+
+		JLabel titleLabel = createStyledLabel("Synonym Network Explorer", "Monospace", Font.BOLD, 24);
+		JLabel subtitleLabel = createStyledLabel("Generate random word based on depth level", "SansSerif", Font.PLAIN, 14);
+		subtitleLabel.setForeground(Color.GRAY);
+
+		titlePanel.add(titleLabel);
+		titlePanel.add(Box.createVerticalStrut(5));
+		titlePanel.add(subtitleLabel);
+
+		return titlePanel;
+	}
+
+	private JLabel createStyledLabel(String text, String fontName, int fontStyle, int fontSize) {
+		JLabel label = new JLabel(text);
+		label.setAlignmentX(Component.CENTER_ALIGNMENT);
+		label.setFont(new Font(fontName, fontStyle, fontSize));
+		return label;
+	}
+
+	private JPanel createInputPanel() {
+		JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+		inputPanel.setBackground(Color.WHITE);
+		inputPanel.setBorder(new EmptyBorder(20, 0, 20, 0));
+
+		inputPanel.add(createWordInputPanel("Start Word", sourceWordField = new JTextField(15)));
+		inputPanel.add(createWordInputPanel("Target Depth:", depthLevelField = new JTextField(15)));
+		inputPanel.add(createExploreButtonPanel("Explore"));
+		inputPanel.add(createExploreButtonPanel("Definitions"));
+
+		return inputPanel;
+	}
+
+	private JPanel createWordInputPanel(String labelText, JTextField textField) {
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setBackground(Color.WHITE);
+
+		JLabel label = new JLabel(labelText);
+		label.setFont(new Font("SansSerif", Font.PLAIN, 12));
+
+		styleTextField(textField);
+
+		panel.add(label, BorderLayout.NORTH);
+		panel.add(textField, BorderLayout.CENTER);
+
+		return panel;
+	}
+
+	private JPanel createExploreButtonPanel(String buttonLabel) {
+		JPanel buttonWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		buttonWrapper.setBackground(Color.WHITE);
+		if(buttonLabel.equals("Definitions")){
+			definitionsButton = new JButton(buttonLabel);
+			styleExploreButton(definitionsButton);
+			definitionsButton.addActionListener(e ->showDefinitions());
+			buttonWrapper.add(definitionsButton);
+			return buttonWrapper;
+		}
+		else {
+			exploreButton = new JButton(buttonLabel);
+			styleExploreButton(exploreButton);
+			exploreButton.addActionListener(e -> generateRandomPath());
+
+			buttonWrapper.add(exploreButton);
+			return buttonWrapper;
+		}
+	}
+
+	private JPanel createGraphPanel() {
+		mainPanel = new JPanel(new BorderLayout());
+		mainPanel.setBackground(Color.WHITE);
+		mainPanel.setPreferredSize(new Dimension(800, 400));
+		mainPanel.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEmptyBorder(0, 20, 20, 20),
+				BorderFactory.createLineBorder(new Color(230, 230, 230))
+		));
+
+		viewer = displayGraph.display();
+		SwingUtilities.invokeLater(() -> {
+			mainPanel.add((Component) viewer.addDefaultView(false), BorderLayout.CENTER);
+		});
+
+		return mainPanel;
+	}
+
+	private JPanel createAnalysisPanel() {
+		JPanel analysisPanel = new JPanel(new BorderLayout());
+		analysisPanel.setBackground(Color.WHITE);
+		analysisPanel.setBorder(new EmptyBorder(0, 20, 20, 20));
+
+		analysisArea = new JTextArea(5, 40);
+		analysisArea.setEditable(false);
+		analysisArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		analysisArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		resetButton = new JButton("Reset");
+		styleResetButton(resetButton);
+		resetButton.addActionListener(e -> resetAll());
+
+		JPanel resetPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		resetPanel.setBackground(Color.WHITE);
+		resetPanel.add(resetButton);
+
+		analysisPanel.add(new JScrollPane(analysisArea), BorderLayout.CENTER);
+		analysisPanel.add(resetPanel, BorderLayout.SOUTH);
+
+		return analysisPanel;
+	}
+
+	private void styleTextField(JTextField textField) {
+		textField.setPreferredSize(new Dimension(200, 35));
+		textField.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+				BorderFactory.createEmptyBorder(5, 10, 5, 10)
+		));
+		textField.setFont(new Font("SansSerif", Font.PLAIN, 14));
+	}
+
+	private void styleExploreButton(JButton button) {
+		button.setPreferredSize(new Dimension(110, 40));
+		button.setBackground(new Color(37, 99, 235));
+		button.setForeground(Color.WHITE);
+		button.setFocusPainted(false);
+		button.setBorderPainted(true);
+		button.setFont(new Font("SansSerif", Font.BOLD, 14));
+		button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	}
+
+	private void styleResetButton(JButton button) {
+		button.setPreferredSize(new Dimension(80, 30));
+		button.setBackground(Color.WHITE);
+		button.setForeground(Color.BLACK);
+		button.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
+		button.setFocusPainted(true);
+		button.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 	}
 
 	private void generateRandomPath() {
@@ -105,16 +216,16 @@ public class GenerateRandomWordGUI extends JFrame {
 			SwingUtilities.invokeLater(() -> {
 				displayGraph.clear();
 				displayGraph.setAttribute("ui.stylesheet",
-						"node { size: 20px; fill-color: #777; text-offset: 0px, -15px; text-alignment: above; text-size: 20; text-color: #000000; } " +
-								"node.start { fill-color: #4169E1; } " +  // Royal Blue for start
+						"node { size: 20px; fill-color: #777; text-offset: 0px, -15px; text-alignment: above; text-size: 20; text-color: #000000;} " +
+								"node.start {fill-color: blue;} " +  // Royal Blue for start
 								"node.path { fill-color: #2E8B57; } " +   // Sea Green for intermediate
 								"node.end { fill-color: #DC143C; } " +    // Crimson for end
 								"node.synonym { fill-color: #808080; } " + // Gray for synonyms
-								"edge { fill-color: #000000; } " +
+								"edge { fill-color: #000000;} " +
 								"edge.path { fill-color: #4169E1; size: 2px; } " +
 								"edge.synonym { fill-color: #808080; }");
 
-				List<String> randomPath = synonymGraph.generateWordAtDepth(startWord, targetDepth);
+				randomPath = synonymGraph.generateWordAtDepth(startWord, targetDepth);
 
 				if (randomPath == null || randomPath.isEmpty()) {
 					analysisArea.setText("Could not generate a path of the requested depth from the start word.");
@@ -181,6 +292,42 @@ public class GenerateRandomWordGUI extends JFrame {
 			JOptionPane.showMessageDialog(this, "Please enter a valid number for depth", "Input Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
+	private void showDefinitions() {
+		if (randomPath == null) {
+			JOptionPane.showMessageDialog(this, "Please explore the synonym connection before viewing the definitions.",
+					"Input Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		StringBuilder definitions = new StringBuilder();
+
+		// Word Definitions Header
+		definitions.append("<html><body>");
+		definitions.append("<h2 style='text-align:center; font-weight:bold;'>Word Definitions:</h2>");
+
+		// Path words and definitions
+		for (String word : randomPath) {
+			String definition = synonymGraph.findWordDefinition(word);
+			definitions.append("<b>").append(word).append(":</b> ").append(definition).append("<br><hr>");
+		}
+		definitions.append("</body></html>");
+
+		// Use JTextPane for HTML formatting
+		JTextPane definitionsPane = new JTextPane();
+		definitionsPane.setContentType("text/html");
+		definitionsPane.setText(definitions.toString());
+		definitionsPane.setEditable(false);
+		JScrollPane scrollPane = new JScrollPane(definitionsPane);
+
+		// Create a separate window for the definitions
+		JFrame definitionsFrame = new JFrame("Word Definitions");
+		definitionsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		definitionsFrame.setSize(600, 400);
+		definitionsFrame.setLocationRelativeTo(this);
+		definitionsFrame.setVisible(true);
+		definitionsFrame.toFront();
+		definitionsFrame.add(scrollPane, BorderLayout.CENTER);
+	}
 
 	private void resetAll() {
 		SwingUtilities.invokeLater(() -> {
@@ -189,6 +336,7 @@ public class GenerateRandomWordGUI extends JFrame {
 			displayGraph.clear();
 			analysisArea.setText("");
 		});
+		randomPath = null;
 	}
 
 	public static void main(String[] args) {

@@ -23,11 +23,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.9</version>
+        </dependency>
+        <dependency>
             <groupId>edu.princeton.cs</groupId>
             <artifactId>algs4</artifactId>
             <version>1.0.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/algs4.jar</systemPath>
+            <systemPath>C:\Users\jorge\Documents\Synonym-Network-Explorer/lib/algs4.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.graphstream</groupId>
