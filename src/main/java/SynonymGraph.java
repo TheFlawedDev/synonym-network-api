@@ -1,5 +1,6 @@
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,24 +75,48 @@ public class SynonymGraph {
      * Constructor initializes fields.
      */
     public SynonymGraph() {
-        this.sg = new SymbolGraphMemoryEfficient("src/main/resources/mthesaur.txt", ",");
-        this.graph = sg.graph();
-        wordDefinitions = fillWordDefinitions();
+        try {
+            // Get input streams for the resources
+            InputStream thesaurusStream = getClass().getClassLoader().getResourceAsStream("mthesaur.txt");
+            if (thesaurusStream == null) {
+                throw new RuntimeException("Cannot find mthesaur.txt in resources");
+            }
+
+            // Create temporary file for thesaurus since SymbolGraphMemoryEfficient needs a file path
+            File tempThesaurus = File.createTempFile("mthesaur", ".txt");
+            tempThesaurus.deleteOnExit();
+            Files.copy(thesaurusStream, tempThesaurus.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            // Initialize the graph with the temporary file
+            this.sg = new SymbolGraphMemoryEfficient(tempThesaurus.getAbsolutePath(), ",");
+            this.graph = sg.graph();
+            wordDefinitions = fillWordDefinitions();
+
+            thesaurusStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error initializing SynonymGraph: " + e.getMessage(), e);
+        }
     }
 
-    // Fills symbol table up with Words as keys, and definitions as values.
     private SeparateChainingHashST<String, String> fillWordDefinitions() {
-        String filePath = "src/main/resources/dict.csv";
         SeparateChainingHashST<String, String> st = new SeparateChainingHashST<>();
 
-        try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
-            List<String[]> rows = reader.readAll();
+        try (InputStream dictStream = getClass().getClassLoader().getResourceAsStream("dict.csv");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(dictStream));
+             CSVReader csvReader = new CSVReader(reader)) {
+
+            if (dictStream == null) {
+                throw new RuntimeException("Cannot find dict.csv in resources");
+            }
+
+            List<String[]> rows = csvReader.readAll();
             for (String[] row : rows) {
                 st.put(row[0], row[1]);
             }
         } catch (IOException | CsvException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error loading dictionary: " + e.getMessage(), e);
         }
+
         return st;
     }
 
