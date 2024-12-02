@@ -98,7 +98,6 @@ public class GenerateRandomWordGUI extends JFrame {
 		add(createGraphPanel(), BorderLayout.CENTER);
 		add(createAnalysisPanel(), BorderLayout.SOUTH);
 
-		pack();
 		setLocationRelativeTo(null);
 	}
 
