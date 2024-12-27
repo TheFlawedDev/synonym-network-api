@@ -53,12 +53,25 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>SynonymGuiContainer</mainClass>
+                            <Main-Class>SynonymGuiContainer</Main-Class>
                         </manifest>
                     </archive>
                     <descriptorRefs>

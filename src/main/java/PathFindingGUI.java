@@ -77,6 +77,11 @@ public class PathFindingGUI extends JFrame {
      * panel - Analysis text area
      */
     private void setupGUI() {
+        try{
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         setTitle("Synonym Network Explorer");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
@@ -85,11 +90,6 @@ public class PathFindingGUI extends JFrame {
         add(createTopPanel(), BorderLayout.NORTH);
         add(createGraphPanel(), BorderLayout.CENTER);
         add(createAnalysisPanel(), BorderLayout.SOUTH);
-        try{
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         setLocationRelativeTo(null);
     }
 
