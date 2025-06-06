@@ -1,0 +1,60 @@
+# === OS / Filesystem ===
+.DS_Store
+Thumbs.db
+
+# === Editor / IDE Files ===
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Neovim / Vim
+*.swp
+*.swo
+*.un~
+*~
+
+# VS Code (in case it's ever used)
+.vscode/
+
+# === Java Build Artifacts ===
+*.class
+
+# === Maven ===
+/target/
+# Maven wrapper JAR (safe to ignore)
+/.mvn/wrapper/maven-wrapper.jar
+
+# === Spring Boot ===
+# Logs
+*.log
+
+# === Local Environment Configs ===
+.env
+.env.*
+*.env
+*.local
+*.tmp
+*.bak
+
+# === Dependency Directories (not typically used for Maven, but safe) ===
+node_modules/
+packages/
+
+# === Coverage / Test Output (optional, if using coverage tools) ===
+coverage/
+*.lcov
+
+# === Python (in case of auxiliary scripts) ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# === Version Control / Backup Files ===
+*.orig
+
+# === Misc ===
+!.gitignore
