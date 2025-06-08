@@ -29,7 +29,6 @@ public class GraphService {
    * @return The initialized SynonymGraph
    */
   public SynonymGraph getSynonymGraph() {
-    initialize();
     return this.synonymGraph;
   }
 
@@ -41,6 +40,27 @@ public class GraphService {
    */
   public boolean containsWord(String word) {
     return this.synonymGraph.truthOrFalse(word);
+  }
+
+  /**
+   * returns all the words in the path of the starting word and an arbitrary depth in the graph
+   *
+   * @param start First word in the graph
+   * @param depth The depth of the path into the graph
+   * @return list of strings representing all the words.
+   */
+  public List<String> generateWordAtDepth(String start, int depth) {
+    List<String> path;
+
+    if (start != null && !start.isEmpty()) {
+      if (depth < 1) {
+        return null;
+      }
+    }
+
+    path = synonymGraph.generateWordAtDepth(start, depth);
+
+    return path;
   }
 
   /**

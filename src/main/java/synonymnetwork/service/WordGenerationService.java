@@ -1,6 +1,5 @@
 package synonymnetwork.service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
  * Extracts logic from GenerateRandomWordGUI*/
 @Service
 public class WordGenerationService {
-  @Autowired private GraphService graphService;
+  @Autowired private GraphService graphService = new GraphService();
 
   /**
    * Generates a random path of words from a starting word to a specified depth.
@@ -28,11 +27,7 @@ public class WordGenerationService {
     if (input.isEmpty() || (graphDepth == 0)) {
       return Collections.emptyList();
     }
-    // TODO: replace with actual paht generation, look at @SynonymGraph Class
-    List<String> path = new ArrayList<>();
-    path.add(input); // Add the input word as the starting point
-    // TODO: missing logic to generate path
-    return path;
+    return graphService.generateWordAtDepth(input, graphDepth);
   }
 
   /**
