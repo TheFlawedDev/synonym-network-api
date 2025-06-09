@@ -1,8 +1,6 @@
 package synonymnetwork.service;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,29 +38,8 @@ public class WordGenerationService {
     if (path.isEmpty()) {
       return Collections.emptyMap();
     }
-    Map<String, Set<String>> map = new HashMap<>();
-    Set<String> wordsInPath = new HashSet<>();
-    // TODO: add logic to get the actual words in the path
-    wordsInPath.add("temp");
-    map.put("temp", wordsInPath);
-
+    Map<String, Set<String>> map = graphService.getsPathToSynonyms(path);
     return map;
-  }
-
-  /**
-   * Gets the definition of a word.
-   *
-   * @param word The word to get definition for
-   * @return The definition of the word
-   */
-  public String getWordDefinition(String word) {
-    if (word.isEmpty()) {
-      return "Pass in a word to getWordDefinition!";
-    }
-
-    // TODO: get correct definition. Hint: Look at the code in @SunonymGraph as its done there.
-    String definition = "temp definition place holder";
-    return definition;
   }
 
   /**
@@ -71,8 +48,19 @@ public class WordGenerationService {
    * @param path List of words to get definitions for
    * @return Map of word to its definition
    */
-  public Map<String, String> getPathDefinitions(List<String> paht) {
-    // TODO: logic to fetch the definitions for each words.
-    return null;
+  public StringBuilder getPathDefinitions(List<String> path) {
+    StringBuilder definitions = new StringBuilder();
+
+    // Word Definitions Header
+    definitions.append("<html><body>");
+    definitions.append("<h2 style='text-align:center; font-weight:bold;'>Word Definitions:</h2>");
+
+    for (String word : path) {
+      String definition = graphService.getDefinition(word);
+
+      definitions.append("<b>").append(word).append(":</b> ").append(definition).append("<br><hr>");
+    }
+    definitions.append("</body></html>");
+    return definitions;
   }
 }

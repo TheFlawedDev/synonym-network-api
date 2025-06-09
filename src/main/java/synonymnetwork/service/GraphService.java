@@ -2,6 +2,8 @@ package synonymnetwork.service;
 
 import jakarta.annotation.PostConstruct;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import synonymnetwork.domain.SynonymGraph;
 
@@ -32,6 +34,10 @@ public class GraphService {
     return this.synonymGraph;
   }
 
+  public String getDefinition(String word) {
+    return this.synonymGraph.findWordDefinition(word);
+  }
+
   /**
    * Checks if a word exists in the graph.
    *
@@ -40,6 +46,10 @@ public class GraphService {
    */
   public boolean containsWord(String word) {
     return this.synonymGraph.truthOrFalse(word);
+  }
+
+  public Map<String, Set<String>> getsPathToSynonyms(List<String> path) {
+    return this.synonymGraph.getPathSynonyms(path);
   }
 
   /**
