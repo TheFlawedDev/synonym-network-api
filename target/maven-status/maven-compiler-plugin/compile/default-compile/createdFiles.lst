@@ -1,17 +1,12 @@
-synonymnetwork/gui/PathFindingGUI.class
-synonymnetwork/gui/SynonymGuiContainer$2.class
 synonymnetwork/service/PathFindingService.class
 synonymnetwork/service/GraphService.class
 synonymnetwork/controller/PathFindingController.class
 synonymnetwork/config/ApiKeyAuthFilter.class
 synonymnetwork/service/PathFindingService$PathInfo.class
 synonymnetwork/service/WordGenerationService.class
-synonymnetwork/gui/SynonymGuiContainer$1.class
 synonymnetwork/config/SecurityConfig.class
 synonymnetwork/controller/WordGenerationController.class
 synonymnetwork/domain/SynonymGraph.class
 synonymnetwork/domain/SymbolGraphMemoryEfficient.class
 synonymnetwork/controller/GraphController.class
-synonymnetwork/gui/SynonymGuiContainer.class
-synonymnetwork/gui/GenerateRandomWordGUI.class
 synonymnetwork/Application.class
