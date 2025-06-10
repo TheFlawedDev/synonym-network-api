@@ -58,3 +58,6 @@ __pycache__/
 
 # === Misc ===
 !.gitignore
+
+# Ignore local application properties file with secrets
+application.properties

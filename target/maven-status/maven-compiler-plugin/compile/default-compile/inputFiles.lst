@@ -1,10 +1,14 @@
 /Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/gui/GenerateRandomWordGUI.java
+/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/config/SecurityConfig.java
+/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/gui/PathFindingGUI.java
+/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/service/GraphService.java
+/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/gui/SynonymGuiContainer.java
+/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/controller/GraphController.java
 /Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/Application.java
 /Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/domain/SynonymGraph.java
 /Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/domain/SymbolGraphMemoryEfficient.java
 /Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/service/WordGenerationService.java
-/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/gui/PathFindingGUI.java
-/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/service/GraphService.java
-/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/gui/SynonymGuiContainer.java
+/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/controller/WordGenerationController.java
 /Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/controller/PathFindingController.java
 /Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/service/PathFindingService.java
+/Users/jorgevelazquez/Documents/Projects/Java/Synonym-Network-Explorer/src/main/java/synonymnetwork/config/ApiKeyAuthFilter.java

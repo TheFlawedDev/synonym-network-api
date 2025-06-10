@@ -1,0 +1,4 @@
+# API Security Configuration
+# DO NOT PUT REAL SECRETS IN THIS FILE.
+# Provide the actual key via an environment variable named API_SECURITY_KEY
+api.security.key=your_secret_key_goes_here
