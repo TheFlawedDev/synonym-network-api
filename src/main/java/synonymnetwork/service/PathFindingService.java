@@ -101,13 +101,13 @@ public class PathFindingService {
       return null; // No path found
     }
 
-    int connectionLevel = path.size() - 1; // [9]
+    int connectionLevel = path.size() - 1;
     Map<String, Set<String>> synonyms = getPathSynonyms(word1, word2);
 
-    SynonymGraph sg = graphService.getSynonymGraph(); // [15]
+    SynonymGraph sg = graphService.getSynonymGraph();
     Map<String, String> definitions = new HashMap<>();
     for (String word : path) {
-      // Find word definition [17]
+      // Find word definition
       definitions.put(word, sg.findWordDefinition(word));
     }
 

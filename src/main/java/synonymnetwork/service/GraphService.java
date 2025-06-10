@@ -1,6 +1,7 @@
 package synonymnetwork.service;
 
 import jakarta.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,23 @@ public class GraphService {
   }
 
   /**
+   * Gets definitions for all words in a path.
+   *
+   * @param path List of words to get definitions for
+   * @return Map of word to its definition
+   */
+  public Map<String, String> getDefinitionsForPath(List<String> path) {
+    Map<String, String> definitions = new HashMap<>();
+    if (path == null) {
+      return definitions;
+    }
+    for (String word : path) {
+      definitions.put(word, this.synonymGraph.findWordDefinition(word));
+    }
+    return definitions;
+  }
+
+  /**
    * Checks if a word exists in the graph.
    *
    * @param word The word to check
@@ -60,47 +78,22 @@ public class GraphService {
    * @return list of strings representing all the words.
    */
   public List<String> generateWordAtDepth(String start, int depth) {
-    List<String> path;
-
-    if (start != null && !start.isEmpty()) {
-      if (depth < 1) {
-        return null;
-      }
+    if (start == null || start.isEmpty() || depth < 1) {
+      return null;
     }
-
-    path = synonymGraph.generateWordAtDepth(start, depth);
-
-    return path;
+    return synonymGraph.generateWordAtDepth(start, depth);
   }
 
   /**
-   * Gets basic statistics about the graph. If end is non-empty, finds stats for the path from start
-   * to end. If end is empty and depth >= 1, gets the path from start to the node at the given
-   * depth.
+   * Gets basic statistics about the graph for a given path.
    *
-   * @param start The starting word
-   * @param end The ending word (can be empty)
-   * @param targetDepth The depth to explore if end is empty
-   * @return String containing graph statistics
+   * @param path The path to analyze.
+   * @return String containing graph statistics (node and edge counts).
    */
-  public String getGraphStatistics(String start, String end, int targetDepth) {
-    List<String> path;
-
-    if (end == null || end.isEmpty()) {
-      // Use the depth-based path
-      if (targetDepth < 1) {
-        return "Invalid depth. Must be >= 1.";
-      }
-
-      path = synonymGraph.generateWordAtDepth(start, targetDepth);
-    } else {
-      // Use the start-to-end word path
-      path = synonymGraph.findPath(start, end);
-    }
-
+  public String getGraphStatistics(List<String> path) {
     if (path != null && !path.isEmpty()) {
       int nodeCount = path.size();
-      int edgeCount = nodeCount - 1;
+      int edgeCount = nodeCount > 0 ? nodeCount - 1 : 0;
       return "Nodes: " + nodeCount + "\nEdges: " + edgeCount;
     }
 

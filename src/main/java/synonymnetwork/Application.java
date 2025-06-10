@@ -1,6 +1,5 @@
 package synonymnetwork;
 
-import javax.swing.SwingUtilities;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -16,7 +15,7 @@ public class Application {
     // Start Spring Boot application (REST API server)
     ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
 
-    // Also start your GUI application using reflection to access default package
+    /*  // Also start your GUI application using reflection to access default package
     SwingUtilities.invokeLater(
         () -> {
           try {
@@ -28,7 +27,7 @@ public class Application {
             System.err.println("Error starting GUI: " + e.getMessage());
             e.printStackTrace();
           }
-        });
+        }); */
 
     // Print information about what's running
     System.out.println("=================================================");
