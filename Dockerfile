@@ -4,16 +4,11 @@ FROM maven:3.8.5-openjdk-17 AS build
 # Set the working directory
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies
-COPY pom.xml .
-RUN mvn dependency:go-offline
+# Copy the entire project into the container
+COPY . .
 
-# Copy the rest of the source code
-COPY src ./src
-
-# Package the application, skipping tests. This creates the JAR file.
+# Package the application, skipping tests. This command also downloads all dependencies.
 RUN mvn package -DskipTests
-
 
 # Stage 2: Create the final, smaller image to run the application
 FROM openjdk:17-jdk-slim
@@ -21,10 +16,11 @@ FROM openjdk:17-jdk-slim
 # Set the working directory
 WORKDIR /app
 
-# Copy the JAR file from the build stage
-COPY --from=build /app/target/*.jar app.jar
+# Copy the generated JAR file from the build stage
+# The JAR name is based on the artifactId and version in your pom.xml
+COPY --from=build /app/target/synonym-network-api-1.0-SNAPSHOT.jar app.jar
 
-# Expose the port that your application runs on (Spring Boot default is 8080)
+# Expose the port that your application runs on
 EXPOSE 8080
 
 # The command to run your application
