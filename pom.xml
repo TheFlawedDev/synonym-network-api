@@ -52,7 +52,7 @@
       <version>5.9</version>
     </dependency>
     <dependency>
-      <groupId>edu.princeton.cs</groupId>
+      <groupId>com.github.kevin-wayne</groupId>
       <artifactId>algs4</artifactId>
       <version>1.0.0</version>
     </dependency>
