@@ -54,7 +54,7 @@
     <dependency>
       <groupId>com.github.kevin-wayne</groupId>
       <artifactId>algs4</artifactId>
-      <version>1.0.0</version>
+      <version>master-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <build>
@@ -74,23 +74,4 @@
       </plugin>
     </plugins>
   </build>
-  <!-- Keep your profiles -->
-  <profiles>
-    <profile>
-      <id>windows</id>
-      <activation>
-        <os>
-          <family>windows</family>
-        </os>
-      </activation>
-    </profile>
-    <profile>
-      <id>mac</id>
-      <activation>
-        <os>
-          <family>mac</family>
-        </os>
-      </activation>
-    </profile>
-  </profiles>
 </project>
