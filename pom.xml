@@ -60,12 +60,12 @@
       </resource>
     </resources>
     <plugins>
-      <!-- Only Spring Boot Maven Plugin - no conflicts -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
           <mainClass>synonymnetwork.Application</mainClass>
+          <includeSystemScope>true</includeSystemScope>
         </configuration>
       </plugin>
     </plugins>
