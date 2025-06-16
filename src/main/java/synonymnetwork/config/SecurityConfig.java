@@ -1,5 +1,7 @@
 package synonymnetwork.config;
 
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -33,7 +38,10 @@ public class SecurityConfig {
         });
 
     // This is the main security configuration using the new lambda DSL
-    http.csrf(csrf -> csrf.disable()) // Disable CSRF
+    http
+        // Add the new CORS configuration here
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(csrf -> csrf.disable()) // Disable CSRF
         .sessionManagement(
             session ->
                 session.sessionCreationPolicy(
@@ -49,5 +57,33 @@ public class SecurityConfig {
             );
 
     return http.build();
+  }
+
+  /**
+   * This Bean defines the CORS policy for your application. It configures which origins, methods,
+   * and headers are allowed.
+   */
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+
+    // **EDIT**: Specify your exact website domain(s) here.
+    // This list allows requests from your primary domain, your Netlify subdomain, and your domain
+    // alias.
+    configuration.setAllowedOrigins(
+        List.of(
+            "https://jorgevelazque.me",
+            "https://jorgevelazquez.tech",
+            "https://jorgevelazquez.netlify.app"));
+
+    // Specify the allowed HTTP methods (GET, POST, etc.)
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    // Specify the allowed headers. It's important to allow the 'x-api-key' and 'Content-Type'.
+    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-api-key"));
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // Apply this configuration to all paths in your application
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
   }
 }
