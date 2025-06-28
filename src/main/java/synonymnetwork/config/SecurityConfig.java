@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -22,21 +21,6 @@ public class SecurityConfig {
 
   @Value("${api.security.key}")
   private String principalRequestValue;
-
-  // ==================================================================
-  // ADD THIS NEW BEAN TO IGNORE THE /health ENDPOINT
-  // ==================================================================
-  /**
-   * This bean customizes web security to completely bypass Spring Security for certain paths. It's
-   * the best way to handle non-sensitive, public endpoints like health checks, as it bypasses the
-   * entire filter chain.
-   */
-  @Bean
-  public WebSecurityCustomizer webSecurityCustomizer() {
-    return (web) -> web.ignoring().requestMatchers("/health");
-  }
-
-  // ==================================================================
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -66,7 +50,9 @@ public class SecurityConfig {
             filter, UsernamePasswordAuthenticationFilter.class) // Add our custom filter
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/**")
+                auth.requestMatchers("/health")
+                    .permitAll()
+                    .requestMatchers("/api/**")
                     .authenticated() // Secure all API endpoints
                     .anyRequest()
                     .permitAll() // Allow all other requests
